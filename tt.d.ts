@@ -1428,6 +1428,658 @@ interface PaySuccessCallbackResult {
   errMsg: string;
 }
 
+// ==================== 广告相关 ====================
+
+/** 横幅广告参数 */
+interface CreateBannerAdOption {
+  /** 广告单元 id */
+  adUnitId: string;
+  /** 广告自动刷新的时间间隔，单位为秒，参数值必须大于等于30 */
+  adIntervals?: number;
+  /** banner 广告组件的样式 */
+  style: {
+    /** left */
+    left?: number;
+    /** top */
+    top?: number;
+    /** width */
+    width?: number;
+    /** height */
+    height?: number;
+  };
+}
+
+/** 横幅广告对象 */
+interface BannerAd {
+  /** 显示 banner 广告 */
+  show(): Promise<void>;
+  /** 隐藏 banner 广告 */
+  hide(): void;
+  /** 销毁 banner 广告 */
+  destroy(): void;
+  /** 监听 banner 广告加载事件 */
+  onLoad(callback: () => void): void;
+  /** 取消监听 banner 广告加载事件 */
+  offLoad(callback?: () => void): void;
+  /** 监听 banner 广告错误事件 */
+  onError(callback: (res: { errMsg: string; errCode: number }) => void): void;
+  /** 取消监听 banner 广告错误事件 */
+  offError(callback?: (res: { errMsg: string; errCode: number }) => void): void;
+  /** 监听 banner 广告尺寸变化事件 */
+  onResize(callback: (res: { width: number; height: number }) => void): void;
+  /** 取消监听 banner 广告尺寸变化事件 */
+  offResize(callback?: (res: { width: number; height: number }) => void): void;
+}
+
+/** 插屏广告参数 */
+interface CreateInterstitialAdOption {
+  /** 广告单元 id */
+  adUnitId: string;
+}
+
+/** 插屏广告对象 */
+interface InterstitialAd {
+  /** 显示插屏广告 */
+  show(): Promise<void>;
+  /** 加载插屏广告 */
+  load(): Promise<void>;
+  /** 销毁插屏广告 */
+  destroy(): void;
+  /** 监听插屏广告加载事件 */
+  onLoad(callback: () => void): void;
+  /** 取消监听插屏广告加载事件 */
+  offLoad(callback?: () => void): void;
+  /** 监听插屏广告错误事件 */
+  onError(callback: (res: { errMsg: string; errCode: number }) => void): void;
+  /** 取消监听插屏广告错误事件 */
+  offError(callback?: (res: { errMsg: string; errCode: number }) => void): void;
+  /** 监听插屏广告关闭事件 */
+  onClose(callback: () => void): void;
+  /** 取消监听插屏广告关闭事件 */
+  offClose(callback?: () => void): void;
+}
+
+/** 激励视频广告参数 */
+interface CreateRewardedVideoAdOption {
+  /** 广告单元 id */
+  adUnitId: string;
+}
+
+/** 激励视频广告对象 */
+interface RewardedVideoAd {
+  /** 显示激励视频广告 */
+  show(): Promise<void>;
+  /** 加载激励视频广告 */
+  load(): Promise<void>;
+  /** 销毁激励视频广告 */
+  destroy(): void;
+  /** 监听激励视频广告加载事件 */
+  onLoad(callback: () => void): void;
+  /** 取消监听激励视频广告加载事件 */
+  offLoad(callback?: () => void): void;
+  /** 监听激励视频广告错误事件 */
+  onError(callback: (res: { errMsg: string; errCode: number }) => void): void;
+  /** 取消监听激励视频广告错误事件 */
+  offError(callback?: (res: { errMsg: string; errCode: number }) => void): void;
+  /** 监听激励视频广告关闭事件 */
+  onClose(callback: (res: { isEnded: boolean }) => void): void;
+  /** 取消监听激励视频广告关闭事件 */
+  offClose(callback?: (res: { isEnded: boolean }) => void): void;
+}
+
+/** 九宫格游戏推荐面板参数 */
+interface CreateGridGamePanelOption {
+  /** 广告单元 id */
+  adUnitId: string;
+  /** 九宫格游戏推荐面板组件的样式 */
+  style: {
+    /** left */
+    left?: number;
+    /** top */
+    top?: number;
+    /** width */
+    width?: number;
+    /** height */
+    height?: number;
+  };
+}
+
+/** 九宫格游戏推荐面板对象 */
+interface GridGamePanel {
+  /** 显示九宫格游戏推荐面板 */
+  show(): void;
+  /** 隐藏九宫格游戏推荐面板 */
+  hide(): void;
+  /** 销毁九宫格游戏推荐面板 */
+  destroy(): void;
+  /** 监听九宫格游戏推荐面板状态变化事件 */
+  onStateChange(callback: (res: { state: 'show' | 'hide' }) => void): void;
+  /** 取消监听九宫格游戏推荐面板状态变化事件 */
+  offStateChange(callback?: (res: { state: 'show' | 'hide' }) => void): void;
+}
+
+// ==================== 数据分析相关 ====================
+
+/** 数据分析上报参数 */
+interface ReportAnalyticsOption {
+  /** 事件名 */
+  eventName: string;
+  /** 事件参数 */
+  data?: Record<string, any>;
+}
+
+/** 场景数据上报参数 */
+interface ReportSceneOption {
+  /** 场景ID */
+  scene: string;
+  /** 场景参数 */
+  data?: Record<string, any>;
+}
+
+// ==================== 设备相关 ====================
+
+/** 获取设备信息参数 */
+interface GetDeviceInfoOption extends BaseCallback<GetDeviceInfoSuccessCallbackResult> {
+}
+
+/** 获取设备信息成功回调结果 */
+interface GetDeviceInfoSuccessCallbackResult {
+  /** 设备品牌 */
+  brand: string;
+  /** 设备型号 */
+  model: string;
+  /** 设备像素比 */
+  pixelRatio: number;
+  /** 屏幕宽度，单位px */
+  screenWidth: number;
+  /** 屏幕高度，单位px */
+  screenHeight: number;
+  /** 可使用窗口宽度，单位px */
+  windowWidth: number;
+  /** 可使用窗口高度，单位px */
+  windowHeight: number;
+  /** 状态栏的高度，单位px */
+  statusBarHeight: number;
+  /** 微信设置的语言 */
+  language: string;
+  /** 微信版本号 */
+  version: string;
+  /** 操作系统及版本 */
+  system: string;
+  /** 客户端平台 */
+  platform: string;
+  /** 用户字体大小（单位px） */
+  fontSizeSetting: number;
+  /** 客户端基础库版本 */
+  SDKVersion: string;
+  /** 设备性能等级 */
+  benchmarkLevel: number;
+  /** 调用结果 */
+  errMsg: string;
+}
+
+/** 获取网络类型参数 */
+interface GetNetworkTypeOption extends BaseCallback<GetNetworkTypeSuccessCallbackResult> {
+}
+
+/** 获取网络类型成功回调结果 */
+interface GetNetworkTypeSuccessCallbackResult {
+  /** 网络类型 */
+  networkType: 'wifi' | '2g' | '3g' | '4g' | '5g' | 'unknown' | 'none';
+  /** 调用结果 */
+  errMsg: string;
+}
+
+/** 网络状态变化回调结果 */
+interface OnNetworkStatusChangeCallbackResult {
+  /** 当前是否有网络连接 */
+  isConnected: boolean;
+  /** 网络类型 */
+  networkType: 'wifi' | '2g' | '3g' | '4g' | '5g' | 'unknown' | 'none';
+}
+
+/** 获取电池信息参数 */
+interface GetBatteryInfoOption extends BaseCallback<GetBatteryInfoSuccessCallbackResult> {
+}
+
+/** 获取电池信息成功回调结果 */
+interface GetBatteryInfoSuccessCallbackResult {
+  /** 设备电量，范围 1 - 100 */
+  level: number;
+  /** 是否正在充电 */
+  isCharging: boolean;
+  /** 调用结果 */
+  errMsg: string;
+}
+
+/** 短震动参数 */
+interface VibrateShortOption extends BaseCallback {
+  /** 震动强度类型 */
+  type?: 'heavy' | 'medium' | 'light';
+}
+
+/** 长震动参数 */
+interface VibrateLongOption extends BaseCallback {
+}
+
+// ==================== 文件系统相关 ====================
+
+/** 读取文件参数 */
+interface ReadFileOption extends BaseCallback<ReadFileSuccessCallbackResult> {
+  /** 文件路径 */
+  filePath: string;
+  /** 指定读取文件的字符编码 */
+  encoding?: 'ascii' | 'base64' | 'binary' | 'hex' | 'ucs2' | 'ucs-2' | 'utf16le' | 'utf-16le' | 'utf-8' | 'utf8' | 'latin1';
+}
+
+/** 读取文件成功回调结果 */
+interface ReadFileSuccessCallbackResult {
+  /** 文件内容 */
+  data: string | ArrayBuffer;
+  /** 调用结果 */
+  errMsg: string;
+}
+
+/** 写入文件参数 */
+interface WriteFileOption extends BaseCallback {
+  /** 文件路径 */
+  filePath: string;
+  /** 要写入的文本或二进制数据 */
+  data: string | ArrayBuffer;
+  /** 指定写入文件的字符编码 */
+  encoding?: 'ascii' | 'base64' | 'binary' | 'hex' | 'ucs2' | 'ucs-2' | 'utf16le' | 'utf-16le' | 'utf-8' | 'utf8' | 'latin1';
+}
+
+/** 删除文件参数 */
+interface UnlinkOption extends BaseCallback {
+  /** 文件路径 */
+  filePath: string;
+}
+
+/** 创建目录参数 */
+interface MkdirOption extends BaseCallback {
+  /** 创建的目录路径 */
+  dirPath: string;
+  /** 是否在递归创建该目录的上级目录 */
+  recursive?: boolean;
+}
+
+/** 删除目录参数 */
+interface RmdirOption extends BaseCallback {
+  /** 要删除的目录路径 */
+  dirPath: string;
+}
+
+/** 读取目录参数 */
+interface ReaddirOption extends BaseCallback<ReaddirSuccessCallbackResult> {
+  /** 要读取的目录路径 */
+  dirPath: string;
+}
+
+/** 读取目录成功回调结果 */
+interface ReaddirSuccessCallbackResult {
+  /** 指定目录下的文件名数组 */
+  files: string[];
+  /** 调用结果 */
+  errMsg: string;
+}
+
+/** 获取文件状态参数 */
+interface StatOption extends BaseCallback<StatSuccessCallbackResult> {
+  /** 文件/目录路径 */
+  path: string;
+}
+
+/** 获取文件状态成功回调结果 */
+interface StatSuccessCallbackResult {
+  /** 文件状态信息 */
+  stats: Stats;
+  /** 调用结果 */
+  errMsg: string;
+}
+
+/** 文件状态信息 */
+interface Stats {
+  /** 文件的类型和存取的权限 */
+  mode: number;
+  /** 文件大小，单位：B */
+  size: number;
+  /** 文件最近一次被存取或被执行的时间 */
+  lastAccessedTime: number;
+  /** 文件最后一次被修改的时间 */
+  lastModifiedTime: number;
+  /** 判断当前文件是否一个目录 */
+  isDirectory(): boolean;
+  /** 判断当前文件是否一个普通文件 */
+  isFile(): boolean;
+}
+
+/** 复制文件参数 */
+interface CopyFileOption extends BaseCallback {
+  /** 源文件路径 */
+  srcPath: string;
+  /** 目标文件路径 */
+  destPath: string;
+}
+
+/** 重命名文件参数 */
+interface RenameOption extends BaseCallback {
+  /** 源文件路径 */
+  oldPath: string;
+  /** 新文件路径 */
+  newPath: string;
+}
+
+/** 判断文件/目录是否存在参数 */
+interface AccessOption extends BaseCallback {
+  /** 要判断是否存在的文件/目录路径 */
+  path: string;
+}
+
+// ==================== 媒体相关 ====================
+
+/** 相机上下文 */
+interface CameraContext {
+  /** 拍照 */
+  takePhoto(option: TakePhotoOption): void;
+  /** 开始录像 */
+  startRecord(option?: StartRecordOption): void;
+  /** 结束录像 */
+  stopRecord(option?: StopRecordOption): void;
+}
+
+/** 拍照参数 */
+interface TakePhotoOption extends BaseCallback<TakePhotoSuccessCallbackResult> {
+  /** 成像质量 */
+  quality?: 'high' | 'normal' | 'low';
+}
+
+/** 拍照成功回调结果 */
+interface TakePhotoSuccessCallbackResult {
+  /** 照片文件的临时路径 */
+  tempImagePath: string;
+  /** 调用结果 */
+  errMsg: string;
+}
+
+/** 开始录像参数 */
+interface StartRecordOption extends BaseCallback {
+  /** 超时时间 */
+  timeoutCallback?: () => void;
+}
+
+/** 结束录像参数 */
+interface StopRecordOption extends BaseCallback<StopRecordSuccessCallbackResult> {
+}
+
+/** 结束录像成功回调结果 */
+interface StopRecordSuccessCallbackResult {
+  /** 封面图片文件的临时路径 */
+  tempThumbPath: string;
+  /** 视频的文件的临时路径 */
+  tempVideoPath: string;
+  /** 调用结果 */
+  errMsg: string;
+}
+
+/** 创建相机上下文参数 */
+interface CreateCameraContextOption {
+  /** 相机组件的实例 */
+  camera: any;
+}
+
+// ==================== 网络相关 ====================
+
+/** WebSocket任务 */
+interface SocketTask {
+  /** 通过 WebSocket 连接发送数据 */
+  send(option: SocketTaskSendOption): void;
+  /** 关闭 WebSocket 连接 */
+  close(option?: SocketTaskCloseOption): void;
+  /** 监听 WebSocket 连接打开事件 */
+  onOpen(callback: (result: SocketTaskOnOpenCallbackResult) => void): void;
+  /** 取消监听 WebSocket 连接打开事件 */
+  offOpen(callback?: (result: SocketTaskOnOpenCallbackResult) => void): void;
+  /** 监听 WebSocket 接受到服务器的消息事件 */
+  onMessage(callback: (result: SocketTaskOnMessageCallbackResult) => void): void;
+  /** 取消监听 WebSocket 接受到服务器的消息事件 */
+  offMessage(callback?: (result: SocketTaskOnMessageCallbackResult) => void): void;
+  /** 监听 WebSocket 连接关闭事件 */
+  onClose(callback: (result: SocketTaskOnCloseCallbackResult) => void): void;
+  /** 取消监听 WebSocket 连接关闭事件 */
+  offClose(callback?: (result: SocketTaskOnCloseCallbackResult) => void): void;
+  /** 监听 WebSocket 错误事件 */
+  onError(callback: (result: SocketTaskOnErrorCallbackResult) => void): void;
+  /** 取消监听 WebSocket 错误事件 */
+  offError(callback?: (result: SocketTaskOnErrorCallbackResult) => void): void;
+}
+
+/** WebSocket发送数据参数 */
+interface SocketTaskSendOption extends BaseCallback {
+  /** 需要发送的内容 */
+  data: string | ArrayBuffer;
+}
+
+/** WebSocket关闭连接参数 */
+interface SocketTaskCloseOption extends BaseCallback {
+  /** 一个数字值表示关闭连接的状态号 */
+  code?: number;
+  /** 一个可读的字符串，表示连接被关闭的原因 */
+  reason?: string;
+}
+
+/** WebSocket连接打开事件回调结果 */
+interface SocketTaskOnOpenCallbackResult {
+  /** 连接打开的Header */
+  header: Record<string, string>;
+}
+
+/** WebSocket接收消息事件回调结果 */
+interface SocketTaskOnMessageCallbackResult {
+  /** 服务器返回的消息 */
+  data: string | ArrayBuffer;
+}
+
+/** WebSocket连接关闭事件回调结果 */
+interface SocketTaskOnCloseCallbackResult {
+  /** 一个数字值表示关闭连接的状态号 */
+  code: number;
+  /** 一个可读的字符串，表示连接被关闭的原因 */
+  reason: string;
+}
+
+/** WebSocket错误事件回调结果 */
+interface SocketTaskOnErrorCallbackResult {
+  /** 错误信息 */
+  errMsg: string;
+}
+
+/** mDNS服务 */
+interface MdnsService {
+  /** 服务的名字 */
+  name: string;
+  /** 服务的类型 */
+  type: string;
+  /** 服务的端口 */
+  port: number;
+  /** 服务的ip地址 */
+  ip: string;
+}
+
+/** 开始搜索mDNS服务参数 */
+interface StartLocalServiceDiscoveryOption extends BaseCallback<StartLocalServiceDiscoverySuccessCallbackResult> {
+  /** 搜索的服务类型 */
+  serviceType: string;
+}
+
+/** 开始搜索mDNS服务成功回调结果 */
+interface StartLocalServiceDiscoverySuccessCallbackResult {
+  /** 调用结果 */
+  errMsg: string;
+}
+
+/** 停止搜索mDNS服务参数 */
+interface StopLocalServiceDiscoveryOption extends BaseCallback {
+  /** 搜索的服务类型 */
+  serviceType: string;
+}
+
+/** UDP Socket */
+interface UDPSocket {
+  /** 绑定一个系统随机分配的可用端口 */
+  bind(): number;
+  /** 关闭UDP Socket */
+  close(): void;
+  /** 取消监听关闭事件 */
+  offClose(callback?: () => void): void;
+  /** 取消监听错误事件 */
+  offError(callback?: (result: UDPSocketOnErrorCallbackResult) => void): void;
+  /** 取消监听收到消息的事件 */
+  offMessage(callback?: (result: UDPSocketOnMessageCallbackResult) => void): void;
+  /** 监听关闭事件 */
+  onClose(callback: () => void): void;
+  /** 监听错误事件 */
+  onError(callback: (result: UDPSocketOnErrorCallbackResult) => void): void;
+  /** 监听收到消息的事件 */
+  onMessage(callback: (result: UDPSocketOnMessageCallbackResult) => void): void;
+  /** 向指定的IP和端口发送消息 */
+  send(option: UDPSocketSendOption): void;
+}
+
+/** UDP Socket错误事件回调结果 */
+interface UDPSocketOnErrorCallbackResult {
+  /** 错误信息 */
+  errMsg: string;
+}
+
+/** UDP Socket收到消息事件回调结果 */
+interface UDPSocketOnMessageCallbackResult {
+  /** 收到的消息 */
+  message: ArrayBuffer;
+  /** 消息来源的结构化信息 */
+  remoteInfo: UDPSocketRemoteInfo;
+}
+
+/** UDP Socket远程信息 */
+interface UDPSocketRemoteInfo {
+  /** 发送消息的socket的地址 */
+  address: string;
+  /** 发送消息的socket的端口号 */
+  port: number;
+  /** message的大小，单位：字节 */
+  size: number;
+}
+
+/** UDP Socket发送消息参数 */
+interface UDPSocketSendOption extends BaseCallback {
+  /** 要发送的数据 */
+  message: string | ArrayBuffer;
+  /** 目标地址 */
+  address: string;
+  /** 目标端口 */
+  port: number;
+}
+
+// ==================== 支付相关 ====================
+
+/** 通用支付参数 */
+interface GeneralPayOption extends BaseCallback<PaySuccessCallbackResult> {
+  /** 订单信息 */
+  orderInfo: string;
+  /** 支付服务类型 */
+  serviceType?: number;
+}
+
+/** 微信支付参数 */
+interface WechatPayOption extends BaseCallback {
+  /** 统一下单接口返回的 prepay_id 参数值 */
+  prepayId: string;
+  /** 签名 */
+  sign: string;
+  /** 时间戳 */
+  timeStamp: string;
+  /** 随机字符串 */
+  nonceStr: string;
+  /** 签名算法 */
+  signType?: string;
+}
+
+// ==================== Worker相关 ====================
+
+/** Worker */
+interface Worker {
+  /** 向主线程发送消息 */
+  postMessage(message: any): void;
+  /** 结束当前 Worker 线程 */
+  terminate(): void;
+  /** 监听主线程向当前子线程发送的消息的事件 */
+  onMessage(callback: (result: WorkerOnMessageCallbackResult) => void): void;
+  /** 取消监听主线程向当前子线程发送的消息的事件 */
+  offMessage(callback?: (result: WorkerOnMessageCallbackResult) => void): void;
+  /** 监听 worker 线程被系统回收事件 */
+  onProcessKilled(callback: () => void): void;
+  /** 取消监听 worker 线程被系统回收事件 */
+  offProcessKilled(callback?: () => void): void;
+}
+
+/** Worker消息事件回调结果 */
+interface WorkerOnMessageCallbackResult {
+  /** 主线程发送的消息 */
+  message: any;
+}
+
+/** 创建Worker参数 */
+interface CreateWorkerOption {
+  /** worker 的脚本路径 */
+  scriptPath: string;
+}
+
+// ==================== 文件系统管理器 ====================
+
+/** 文件系统管理器 */
+interface FileSystemManager {
+  /** 读取文件 */
+  readFile(option: ReadFileOption): void;
+  /** 同步读取文件 */
+  readFileSync(filePath: string, encoding?: string): string | ArrayBuffer;
+  /** 写入文件 */
+  writeFile(option: WriteFileOption): void;
+  /** 同步写入文件 */
+  writeFileSync(filePath: string, data: string | ArrayBuffer, encoding?: string): void;
+  /** 删除文件 */
+  unlink(option: UnlinkOption): void;
+  /** 同步删除文件 */
+  unlinkSync(filePath: string): void;
+  /** 创建目录 */
+  mkdir(option: MkdirOption): void;
+  /** 同步创建目录 */
+  mkdirSync(dirPath: string, recursive?: boolean): void;
+  /** 删除目录 */
+  rmdir(option: RmdirOption): void;
+  /** 同步删除目录 */
+  rmdirSync(dirPath: string): void;
+  /** 读取目录 */
+  readdir(option: ReaddirOption): void;
+  /** 同步读取目录 */
+  readdirSync(dirPath: string): string[];
+  /** 获取文件状态 */
+  stat(option: StatOption): void;
+  /** 同步获取文件状态 */
+  statSync(path: string): Stats;
+  /** 复制文件 */
+  copyFile(option: CopyFileOption): void;
+  /** 同步复制文件 */
+  copyFileSync(srcPath: string, destPath: string): void;
+  /** 重命名文件 */
+  rename(option: RenameOption): void;
+  /** 同步重命名文件 */
+  renameSync(oldPath: string, newPath: string): void;
+  /** 判断文件/目录是否存在 */
+  access(option: AccessOption): void;
+  /** 同步判断文件/目录是否存在 */
+  accessSync(path: string): void;
+}
+
 // ==================== 主要 TT 对象接口 ====================
 
 interface TT {
@@ -1722,6 +2374,97 @@ interface TT {
 
   /** 发起支付 */
   pay(option: PayOption): void;
+
+  // ==================== 广告相关 ====================
+
+  /** 创建横幅广告组件 */
+  createBannerAd(option: CreateBannerAdOption): BannerAd;
+
+  /** 创建插屏广告组件 */
+  createInterstitialAd(option: CreateInterstitialAdOption): InterstitialAd;
+
+  /** 创建激励视频广告组件 */
+  createRewardedVideoAd(option: CreateRewardedVideoAdOption): RewardedVideoAd;
+
+  /** 创建九宫格游戏推荐面板组件 */
+  createGridGamePanel(option: CreateGridGamePanelOption): GridGamePanel;
+
+  // ==================== 数据分析相关 ====================
+
+  /** 数据分析上报 */
+  reportAnalytics(option: ReportAnalyticsOption): void;
+
+  /** 场景数据上报 */
+  reportScene(option: ReportSceneOption): void;
+
+  // ==================== 设备相关 ====================
+
+  /** 获取设备信息 */
+  getDeviceInfo(option?: GetDeviceInfoOption): void;
+
+  /** 获取网络类型 */
+  getNetworkType(option?: GetNetworkTypeOption): void;
+
+  /** 监听网络状态变化事件 */
+  onNetworkStatusChange(callback: (res: OnNetworkStatusChangeCallbackResult) => void): void;
+
+  /** 取消监听网络状态变化事件 */
+  offNetworkStatusChange(callback?: (res: OnNetworkStatusChangeCallbackResult) => void): void;
+
+  /** 获取电池信息 */
+  getBatteryInfo(option?: GetBatteryInfoOption): void;
+
+  /** 短震动 */
+  vibrateShort(option?: VibrateShortOption): void;
+
+  /** 长震动 */
+  vibrateLong(option?: VibrateLongOption): void;
+
+  // ==================== 文件系统相关 ====================
+
+  /** 获取全局唯一的文件管理器 */
+  getFileSystemManager(): FileSystemManager;
+
+  // ==================== 媒体相关 ====================
+
+  /** 获取全局唯一的录音管理器 */
+  getRecorderManager(): RecorderManager;
+
+  /** 创建相机上下文 */
+  createCameraContext(option: CreateCameraContextOption): CameraContext;
+
+  // ==================== 网络相关 ====================
+
+  /** 开始搜索局域网下的 mDNS 服务 */
+  startLocalServiceDiscovery(option: StartLocalServiceDiscoveryOption): void;
+
+  /** 停止搜索 mDNS 服务 */
+  stopLocalServiceDiscovery(option: StopLocalServiceDiscoveryOption): void;
+
+  /** 监听 mDNS 服务发现的事件 */
+  onLocalServiceFound(callback: (res: { serviceName: string; serviceType: string; ip: string; port: number }) => void): void;
+
+  /** 取消监听 mDNS 服务发现的事件 */
+  offLocalServiceFound(callback?: (res: { serviceName: string; serviceType: string; ip: string; port: number }) => void): void;
+
+  /** 监听 mDNS 服务离开的事件 */
+  onLocalServiceLost(callback: (res: { serviceName: string; serviceType: string }) => void): void;
+
+  /** 取消监听 mDNS 服务离开的事件 */
+  offLocalServiceLost(callback?: (res: { serviceName: string; serviceType: string }) => void): void;
+
+  /** 创建一个 UDP Socket 实例 */
+  createUDPSocket(): UDPSocket;
+
+  // ==================== 支付相关 ====================
+
+  /** 发起支付 */
+  requestPayment(option: WechatPayOption): void;
+
+  // ==================== Worker相关 ====================
+
+  /** 创建一个 Worker 线程 */
+  createWorker(scriptPath: string): Worker;
 }
 
 // ==================== 全局声明 ====================
@@ -1766,5 +2509,73 @@ export {
   BaseCallback,
   SafeArea,
   DeviceScore,
-  ReferrerInfo
+  ReferrerInfo,
+  // 广告相关
+  CreateBannerAdOption,
+  BannerAd,
+  CreateInterstitialAdOption,
+  InterstitialAd,
+  CreateRewardedVideoAdOption,
+  RewardedVideoAd,
+  CreateGridGamePanelOption,
+  GridGamePanel,
+  // 数据分析相关
+  ReportAnalyticsOption,
+  ReportSceneOption,
+  // 设备相关
+  GetDeviceInfoOption,
+  GetDeviceInfoSuccessCallbackResult,
+  GetNetworkTypeOption,
+  GetNetworkTypeSuccessCallbackResult,
+  OnNetworkStatusChangeCallbackResult,
+  GetBatteryInfoOption,
+  GetBatteryInfoSuccessCallbackResult,
+  VibrateShortOption,
+  VibrateLongOption,
+  // 文件系统相关
+  ReadFileOption,
+  ReadFileSuccessCallbackResult,
+  WriteFileOption,
+  UnlinkOption,
+  MkdirOption,
+  RmdirOption,
+  ReaddirOption,
+  ReaddirSuccessCallbackResult,
+  StatOption,
+  StatSuccessCallbackResult,
+  Stats,
+  CopyFileOption,
+  RenameOption,
+  AccessOption,
+  // 媒体相关
+  CameraContext,
+  TakePhotoOption,
+  TakePhotoSuccessCallbackResult,
+  StartRecordOption,
+  StopRecordOption,
+  StopRecordSuccessCallbackResult,
+  CreateCameraContextOption,
+  // 网络相关
+  SocketTaskSendOption,
+  SocketTaskCloseOption,
+  SocketTaskOnOpenCallbackResult,
+  SocketTaskOnMessageCallbackResult,
+  SocketTaskOnCloseCallbackResult,
+  SocketTaskOnErrorCallbackResult,
+  MdnsService,
+  StartLocalServiceDiscoveryOption,
+  StartLocalServiceDiscoverySuccessCallbackResult,
+  StopLocalServiceDiscoveryOption,
+  UDPSocket,
+  UDPSocketOnErrorCallbackResult,
+  UDPSocketOnMessageCallbackResult,
+  UDPSocketRemoteInfo,
+  UDPSocketSendOption,
+  // 支付相关
+  GeneralPayOption,
+  WechatPayOption,
+  // Worker相关
+  Worker,
+  WorkerOnMessageCallbackResult,
+  CreateWorkerOption
 };
