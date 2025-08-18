@@ -10,7 +10,7 @@
 
 | 平台         | 文件        | 官方文档                                                                                             |
 | ------------ | ----------- | ---------------------------------------------------------------------------------------------------- |
-| 芒果TV小游戏 | `mgtv.d.ts` | [芒果TV开放平台](https://open.mgtv.com/docs/minigame/introduction)                                   |
+| 芒果TV小游戏 | `mgtv.d.ts` | [芒果TV开放平台](https://open.mgtv.com/docs/minigame/api)                                            |
 | 抖音小游戏   | `tt.d.ts`   | [抖音开放平台](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/overview) |
 
 ## 使用方法
