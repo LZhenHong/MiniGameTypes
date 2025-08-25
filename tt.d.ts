@@ -122,6 +122,28 @@ interface ReferrerInfo {
 }
 
 /**
+ * 启动参数
+ * @description 小游戏启动时获取的参数信息
+ */
+interface LaunchOptions {
+    /** 启动参数，包含自定义字段和特殊字段 */
+    query: Record<string, any>;
+    /** 启动场景值 */
+    scene: string;
+    /** 小游戏基本信息，包括宿主Id，gameId等参数 */
+    extra: {
+        /** 宿主id */
+        aid: number;
+        /** 小游戏appId */
+        appId: string;
+        /** 小游戏的版本信息 */
+        mpVersion: string;
+        /** 启动场景的补充信息 */
+        launch_from?: string;
+    };
+}
+
+/**
  * 小游戏显示回调参数
  * @description 小游戏从后台切换到前台时的回调参数
  */
@@ -149,18 +171,16 @@ interface OnShowCallbackResult {
 interface RequestOption extends BaseCallback<RequestSuccessCallbackResult> {
     /** 开发者服务器接口地址 */
     url: string;
-    /** 请求的参数数据 */
+    /** 请求的参数数据，支持 object、array、ArrayBuffer 类型 */
     data?: string | Record<string, any> | ArrayBuffer;
-    /** 设置请求的header */
+    /** 设置请求的header，默认为 {"content-type": "application/json"} */
     header?: Record<string, string>;
-    /** HTTP请求方法 */
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE' | 'CONNECT';
-    /** 返回的数据格式 */
-    dataType?: 'json' | 'text' | 'base64' | 'arraybuffer';
-    /** 响应的数据类型 */
+    /** HTTP请求方法，默认为 GET */
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD' | 'OPTIONS';
+    /** 期望返回的数据类型，支持 json、string，默认为 json */
+    dataType?: 'json' | 'string';
+    /** 期望响应的数据类型，支持 text 或 arraybuffer，默认为 text */
     responseType?: 'text' | 'arraybuffer';
-    /** 超时时间，单位毫秒 */
-    timeout?: number;
 }
 
 /**
@@ -396,7 +416,7 @@ interface ShowToastOption extends BaseCallback {
     /** 提示的内容文本，显示在Toast中央 */
     title: string;
     /** 图标类型，决定Toast显示的图标样式 */
-    icon?: 'success' | 'loading' | 'none';
+    icon?: 'success' | 'loading' | 'none' | 'fail';
     /** 自定义图标的本地路径，当icon为none时可使用 */
     image?: string;
     /** 提示的延迟时间，单位毫秒，默认1500ms */
@@ -783,12 +803,22 @@ interface AccelerometerData {
 
 /** 陀螺仪数据 */
 interface GyroscopeData {
-    /** X 轴 */
+    /** x 轴的角速度 */
     x: number;
-    /** Y 轴 */
+    /** y 轴的角速度 */
     y: number;
-    /** Z 轴 */
+    /** z 轴的角速度 */
     z: number;
+    /** 姿态角值，围绕 Z 轴旋转，也叫翻滚角 */
+    roll?: number;
+    /** 姿态角值，围绕 X 轴旋转，也叫俯仰角 */
+    pitch?: number;
+    /** 姿态角值，围绕 Y 轴旋转，也叫偏航角 */
+    yaw?: number;
+    /** 从设备启动到现在经过的时间戳，单位是 ms */
+    t?: number;
+    /** 数据是否有效的标示，值为 -1 时表示数据无效 */
+    result?: number;
 }
 
 /** 罗盘数据 */
@@ -1102,45 +1132,6 @@ interface InterstitialAd {
     offClose(callback?: () => void): void;
 }
 
-/** 创建 Banner 广告参数 */
-interface CreateBannerAdOption {
-    /** 广告单元 id */
-    adUnitId: string;
-    /** banner 广告组件的样式 */
-    style: {
-        /** left */
-        left?: number;
-        /** top */
-        top?: number;
-        /** width */
-        width?: number;
-        /** height */
-        height?: number;
-    };
-}
-
-/** Banner 广告组件 */
-interface BannerAd {
-    /** 显示 banner 广告 */
-    show(): Promise<any>;
-    /** 隐藏 banner 广告 */
-    hide(): void;
-    /** 销毁 banner 广告 */
-    destroy(): void;
-    /** 监听 banner 广告尺寸变化事件 */
-    onResize(callback: (res: { width: number; height: number }) => void): void;
-    /** 取消监听 banner 广告尺寸变化事件 */
-    offResize(callback?: (res: { width: number; height: number }) => void): void;
-    /** 监听 banner 广告加载事件 */
-    onLoad(callback: () => void): void;
-    /** 取消监听 banner 广告加载事件 */
-    offLoad(callback?: () => void): void;
-    /** 监听 banner 广告错误事件 */
-    onError(callback: (res: { errMsg: string; errCode: number }) => void): void;
-    /** 取消监听 banner 广告错误事件 */
-    offError(callback?: (res: { errMsg: string; errCode: number }) => void): void;
-}
-
 // ==================== UI 交互相关 ====================
 
 /** 显示键盘参数 */
@@ -1302,44 +1293,14 @@ interface ShowActionSheetSuccessCallbackResult {
     errMsg: string;
 }
 
-/** 显示模态弹窗参数 */
-interface ShowModalOption extends BaseCallback<ShowModalSuccessCallbackResult> {
-    /** 提示的标题 */
-    title?: string;
-    /** 提示的内容 */
-    content?: string;
-    /** 是否显示取消按钮 */
-    showCancel?: boolean;
-    /** 取消按钮的文字，最多 4 个字符 */
-    cancelText?: string;
-    /** 取消按钮的文字颜色，必须是 16 进制格式的颜色字符串 */
-    cancelColor?: string;
-    /** 确认按钮的文字，最多 4 个字符 */
-    confirmText?: string;
-    /** 确认按钮的文字颜色，必须是 16 进制格式的颜色字符串 */
-    confirmColor?: string;
-}
-
-/** 显示模态弹窗成功回调结果 */
-interface ShowModalSuccessCallbackResult {
-    /** 为 true 时，表示用户点击了确定按钮 */
-    confirm: boolean;
-    /** 为 true 时，表示用户点击了取消（用于 Android 系统区分点击蒙层关闭还是点击取消按钮关闭） */
-    cancel: boolean;
-    /** 调用结果 */
-    errMsg: string;
-}
-
 /** 隐藏消息提示框参数 */
 interface HideToastOption extends BaseCallback {
 }
 
 /** 显示 loading 提示框参数 */
 interface ShowLoadingOption extends BaseCallback {
-    /** 提示的内容 */
+    /** 提示的内容，最多显示 7 个汉字长度的文本 */
     title: string;
-    /** 是否显示透明蒙层，防止触摸穿透 */
-    mask?: boolean;
 }
 
 /** 隐藏 loading 提示框参数 */
@@ -1506,15 +1467,13 @@ interface CreateBannerAdOption {
     /** 广告自动刷新的时间间隔，单位为秒，参数值必须大于等于30 */
     adIntervals?: number;
     /** banner 广告组件的样式 */
-    style: {
-        /** left */
+    style?: {
+        /** 广告位区域左上角横坐标 */
         left?: number;
-        /** top */
+        /** 广告位区域左上角纵坐标 */
         top?: number;
-        /** width */
+        /** 广告位区域宽度，默认值为128 */
         width?: number;
-        /** height */
-        height?: number;
     };
 }
 
@@ -2164,7 +2123,7 @@ interface TT {
     /** 监听小游戏隐藏到后台的事件 */
     onHide(callback: () => void): void;
     /** 获取小游戏启动时的参数 */
-    getLaunchOptionsSync(): OnShowCallbackResult;
+    getLaunchOptionsSync(): LaunchOptions;
 
     // 网络请求
     /** 发起 HTTPS 网络请求 */
@@ -2269,14 +2228,14 @@ interface TT {
     /** 监听加速度数据变化事件 */
     onAccelerometerChange(callback: (res: AccelerometerData) => void): void;
     /** 开始监听加速度数据 */
-    startAccelerometer(option?: BaseCallback & { interval?: 'game' | 'ui' | 'normal' }): void;
+    startAccelerometer(option?: BaseCallback): void;
     /** 停止监听加速度数据 */
     stopAccelerometer(option?: BaseCallback): void;
 
     /** 监听陀螺仪数据变化事件 */
     onGyroscopeChange(callback: (res: GyroscopeData) => void): void;
     /** 开始监听陀螺仪数据 */
-    startGyroscope(option?: BaseCallback & { interval?: 'game' | 'ui' | 'normal' }): void;
+    startGyroscope(option?: BaseCallback & { interval?: number }): void;
     /** 停止监听陀螺仪数据 */
     stopGyroscope(option?: BaseCallback): void;
 
@@ -2579,6 +2538,7 @@ export {
     SafeArea,
     DeviceScore,
     ReferrerInfo,
+    LaunchOptions,
     // 广告相关
     CreateBannerAdOption,
     BannerAd,

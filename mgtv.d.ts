@@ -2,7 +2,7 @@
  * 芒果TV小游戏API类型定义
  * 基于芒果TV开放平台文档生成
  * @see https://open.mgtv.com/docs/minigame/api
- * @date 2025-08-18
+ * @date 2025-08-25
  */
 
 // ============================================================================
@@ -137,12 +137,41 @@ declare function getWindowInfo(): WindowInfo;
 // 应用生命周期和错误处理
 // ============================================================================
 
+/** 错误信息对象 */
+interface ErrorInfo {
+    /** 错误信息 */
+    message: string;
+    /** 错误调用堆栈 */
+    stack: string;
+}
+
 /** 错误事件监听器类型 */
-type ErrorListener = (error: any) => void;
+type ErrorListener = (error: ErrorInfo) => void;
+/** Promise拒绝事件回调结果 */
+interface UnhandledRejectionResult {
+    /** 拒绝原因，一般是一个 Error 对象 */
+    reason: any;
+    /** 被拒绝的 promise 对象 */
+    promise: Promise<any>;
+}
 /** Promise拒绝事件监听器类型 */
-type RejectionListener = (res: any) => void;
+type RejectionListener = (res: UnhandledRejectionResult) => void;
 /** 生命周期事件监听器类型 */
 type LifecycleListener = () => void;
+/** 摇一摇事件监听器类型 */
+type ShakeListener = () => void;
+
+/** 启动参数 */
+interface LaunchOptions {
+    /** 打开小程序的路径 */
+    path: string;
+    /** 打开小程序的 query 字段，可通过分享或者唤起协议中配置 */
+    query: Record<string, string>;
+    /** 场景值 */
+    scene: number;
+    /** 渠道标识 */
+    from: string;
+}
 
 /**
  * 移除全局错误事件监听器
@@ -154,9 +183,9 @@ declare function offError(listener: ErrorListener): void;
 /**
  * 移除未处理的 Promise 拒绝事件监听器
  * @param listener 未处理的 Promise 拒绝事件监听器
- * @see https://open.mgtv.com/docs/minigame/api/app/events/offUnhandleRejection
+ * @see https://open.mgtv.com/docs/minigame/api/app/events/offUnhandledRejection
  */
-declare function offUnhandleRejection(listener: RejectionListener): void;
+declare function offUnhandledRejection(listener: RejectionListener): void;
 
 /**
  * 监听全局错误事件
@@ -177,7 +206,7 @@ declare function onUnhandledRejection(listener: RejectionListener): void;
  * @returns 启动参数
  * @see https://open.mgtv.com/docs/minigame/api/app/lifecycle/getLaunchOptionsSync
  */
-declare function getLaunchOptionsSync(): any;
+declare function getLaunchOptionsSync(): LaunchOptions;
 
 /**
  * 取消监听小游戏隐藏到后台事件
@@ -479,6 +508,500 @@ declare function downloadFile(options: DownloadFileOptions): DownloadTask;
  */
 declare function uploadFile(options: UploadFileOptions): UploadTask;
 
+// ============================================================================
+// WebSocket相关类型
+// ============================================================================
+
+/** WebSocket连接选项 */
+interface ConnectSocketOptions extends BaseCallback {
+    /** 开发者服务器 wss 接口地址 */
+    url: string;
+    /** HTTP Header，Header 中不能设置 Referrer */
+    header?: Record<string, string>;
+    /** 子协议数组 */
+    protocols?: string[];
+}
+
+/** 关闭WebSocket选项 */
+interface CloseSocketOptions extends BaseCallback {
+    /** 一个数字值表示关闭连接的状态号，表示连接被关闭的原因，默认1000（表示正常关闭连接） */
+    code?: number;
+    /** 一个可读的字符串，表示连接被关闭的原因。这个字符串必须是不长于123字节的UTF-8文本（不是字符） */
+    reason?: string;
+}
+
+/** 发送WebSocket消息选项 */
+interface SendSocketMessageOptions extends BaseCallback {
+    /** 需要发送的内容 */
+    data: string | ArrayBuffer;
+}
+
+/** WebSocket连接打开事件回调结果 */
+interface SocketOpenResult {
+    /** 连接打开时的HTTP响应Header */
+    header: Record<string, string>;
+}
+
+/** WebSocket连接关闭事件回调结果 */
+interface SocketCloseResult {
+    /** 关闭连接的状态号 */
+    code: number;
+    /** 关闭连接的原因 */
+    reason: string;
+}
+
+/** WebSocket错误事件回调结果 */
+interface SocketErrorResult {
+    /** 错误信息 */
+    errMsg: string;
+}
+
+/** WebSocket消息事件回调结果 */
+interface SocketMessageResult {
+    /** 服务器返回的消息 */
+    data: string | ArrayBuffer;
+}
+
+/** WebSocket事件监听器类型 */
+type SocketOpenListener = (res: SocketOpenResult) => void;
+type SocketCloseListener = (res: SocketCloseResult) => void;
+type SocketErrorListener = (res: SocketErrorResult) => void;
+type SocketMessageListener = (res: SocketMessageResult) => void;
+
+/** SocketTask对象 */
+interface SocketTask {
+    /** 通过 WebSocket 连接发送数据 */
+    send(options: SendSocketMessageOptions): void;
+    /** 关闭 WebSocket 连接 */
+    close(options?: CloseSocketOptions): void;
+    /** 监听 WebSocket 连接打开事件 */
+    onOpen(callback: SocketOpenListener): void;
+    /** 监听 WebSocket 连接关闭事件 */
+    onClose(callback: SocketCloseListener): void;
+    /** 监听 WebSocket 错误事件 */
+    onError(callback: SocketErrorListener): void;
+    /** 监听 WebSocket 接受到服务器的消息事件 */
+    onMessage(callback: SocketMessageListener): void;
+}
+
+/**
+ * 创建一个 WebSocket 连接
+ * @param options WebSocket连接选项
+ * @returns SocketTask对象
+ * @see https://open.mgtv.com/docs/minigame/api/network/websocket/connectSocket
+ */
+declare function connectSocket(options: ConnectSocketOptions): SocketTask;
+
+/**
+ * 关闭 WebSocket 连接
+ * @param options 关闭选项
+ * @see https://open.mgtv.com/docs/minigame/api/network/websocket/closeSocket
+ */
+declare function closeSocket(options?: CloseSocketOptions): void;
+
+/**
+ * 通过 WebSocket 连接发送数据
+ * @param options 发送消息选项
+ * @see https://open.mgtv.com/docs/minigame/api/network/websocket/sendSocketMessage
+ */
+declare function sendSocketMessage(options: SendSocketMessageOptions): void;
+
+/**
+ * 监听WebSocket连接打开事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/network/websocket/onSocketOpen
+ */
+declare function onSocketOpen(callback: SocketOpenListener): void;
+
+/**
+ * 监听WebSocket连接关闭事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/network/websocket/onSocketClose
+ */
+declare function onSocketClose(callback: SocketCloseListener): void;
+
+/**
+ * 监听WebSocket错误事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/network/websocket/onSocketError
+ */
+declare function onSocketError(callback: SocketErrorListener): void;
+
+/**
+ * 监听WebSocket接受到服务器的消息事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/network/websocket/onSocketMessage
+ */
+declare function onSocketMessage(callback: SocketMessageListener): void;
+
+// ============================================================================
+// 文件系统相关类型
+// ============================================================================
+
+/** 文件编码类型 */
+type FileEncoding = 'ascii' | 'base64' | 'binary' | 'hex' | 'ucs2' | 'ucs-2' | 'utf16le' | 'utf-16le' | 'utf8' | 'utf-8' | 'latin1';
+
+/** 文件状态信息 */
+interface Stats {
+    /** 文件的类型和存取的权限，对应 POSIX stat.st_mode */
+    mode: string;
+    /** 文件大小，单位：B，对应 POSIX stat.st_size */
+    size: number;
+    /** 文件最近一次被存取或被执行的时间，UNIX 时间戳，对应 POSIX stat.st_atime */
+    lastAccessedTime: number;
+    /** 文件最后一次被修改的时间，UNIX 时间戳，对应 POSIX stat.st_mtime */
+    lastModifiedTime: number;
+
+    /** 判断当前文件是否一个目录 */
+    isDirectory(): boolean;
+    /** 判断当前文件是否一个普通文件 */
+    isFile(): boolean;
+}
+
+/** 文件访问选项 */
+interface AccessOptions extends BaseCallback {
+    /** 要判断是否存在的文件/目录路径 */
+    path: string;
+}
+
+/** 获取文件信息选项 */
+interface GetFileInfoOptions extends BaseCallback<GetFileInfoSuccessResult> {
+    /** 要读取的文件的路径 */
+    filePath: string;
+}
+
+/** 获取文件信息成功结果 */
+interface GetFileInfoSuccessResult {
+    /** 文件大小，单位B */
+    size: number;
+}
+
+/** 读取文件选项 */
+interface ReadFileOptions extends BaseCallback<ReadFileSuccessResult> {
+    /** 要读取的文件的路径 */
+    filePath: string;
+    /** 指定读取文件的字符编码，如果不传encoding，则以 ArrayBuffer 格式读取文件的二进制内容 */
+    encoding?: FileEncoding;
+}
+
+/** 读取文件成功结果 */
+interface ReadFileSuccessResult {
+    /** 文件内容 */
+    data: string | ArrayBuffer;
+}
+
+/** 写入文件选项 */
+interface WriteFileOptions extends BaseCallback {
+    /** 要写入的文件路径 */
+    filePath: string;
+    /** 要写入的文本或二进制数据 */
+    data: string | ArrayBuffer;
+    /** 指定写入文件的字符编码 */
+    encoding?: FileEncoding;
+}
+
+/** 保存文件选项 */
+interface SaveFileOptions extends BaseCallback<SaveFileSuccessResult> {
+    /** 需要保存的临时文件的路径 */
+    tempFilePath: string;
+    /** 要保存的文件路径 */
+    filePath?: string;
+}
+
+/** 保存文件成功结果 */
+interface SaveFileSuccessResult {
+    /** 保存后的本地文件路径 */
+    savedFilePath: string;
+}
+
+/** 删除保存的文件选项 */
+interface RemoveSavedFileOptions extends BaseCallback {
+    /** 需要删除的文件路径 */
+    filePath: string;
+}
+
+/** 获取文件状态选项 */
+interface StatOptions extends BaseCallback<StatSuccessResult> {
+    /** 文件/目录路径 */
+    path: string;
+    /** 是否递归获取目录下的每个文件的 Stats 信息 */
+    recursive?: boolean;
+}
+
+/** 获取文件状态成功结果 */
+interface StatSuccessResult {
+    /** 当 path 是一个目录时，stats 是一个 Object，key 以 path 为根路径的相对路径，value 是该路径对应的 Stats 对象 */
+    stats: Stats | Record<string, Stats>;
+}
+
+/** 文件系统管理器 */
+interface FileSystemManager {
+    /** 判断文件/目录是否存在 */
+    access(options: AccessOptions): void;
+    /** 同步判断文件/目录是否存在 */
+    accessSync(path: string): void;
+
+    /** 获取文件 Stats 信息 */
+    stat(options: StatOptions): void;
+    /** 同步获取文件 Stats 信息 */
+    statSync(path: string, recursive?: boolean): Stats | Record<string, Stats>;
+
+    /** 读取本地文件内容 */
+    readFile(options: ReadFileOptions): void;
+    /** 同步读取本地文件内容 */
+    readFileSync(filePath: string, encoding?: FileEncoding): string | ArrayBuffer;
+
+    /** 写文件 */
+    writeFile(options: WriteFileOptions): void;
+    /** 同步写文件 */
+    writeFileSync(filePath: string, data: string | ArrayBuffer, encoding?: FileEncoding): void;
+
+    /** 保存临时文件到本地 */
+    saveFile(options: SaveFileOptions): void;
+    /** 同步保存临时文件到本地 */
+    saveFileSync(tempFilePath: string, filePath?: string): string;
+
+    /** 删除该小程序下已保存的本地缓存文件 */
+    removeSavedFile(options: RemoveSavedFileOptions): void;
+
+    /** 获取该小程序下的本地临时文件或本地缓存文件信息 */
+    getFileInfo(options: GetFileInfoOptions): void;
+}
+
+/**
+ * 获取全局唯一的文件系统管理器
+ * @returns 文件系统管理器
+ * @see https://open.mgtv.com/docs/minigame/api/file/FileSystemManager/
+ */
+declare function getFileSystemManager(): FileSystemManager;
+
+// ============================================================================
+// 页面视频相关类型
+// ============================================================================
+
+/** 页面视频事件监听器类型 */
+type PageVideoEventListener = () => void;
+type PageVideoErrorListener = (error: any) => void;
+type PageVideoTimeUpdateListener = (res: { currentTime: number; duration: number }) => void;
+type PageVideoVideoChangedListener = (res: { videoId: string }) => void;
+type PageVideoFullScreenListener = (res: { fullScreen: boolean }) => void;
+
+/** 页面视频上下文 */
+interface PageVideoContext {
+    /** 播放视频 */
+    play(): void;
+    /** 暂停视频 */
+    pause(): void;
+    /** 跳转到指定位置 */
+    seek(position: number): void;
+    /** 切换视频 */
+    switch(videoId: string): void;
+    /** 获取视频信息 */
+    getVideoInfo(): Promise<any>;
+    /** 获取当前视频截图 */
+    getVideoFrame(): Promise<any>;
+    /** 打开全屏 */
+    fullScreen(): void;
+    /** 发送气泡消息 */
+    showBubble(): void;
+
+    /** 监听播放器开始播放事件 */
+    onPlay(listener: PageVideoEventListener): void;
+    /** 取消监听播放器开始播放事件 */
+    offPlay(listener: PageVideoEventListener): void;
+    /** 监听播放器暂停播放事件 */
+    onPause(listener: PageVideoEventListener): void;
+    /** 取消监听播放器暂停播放事件 */
+    offPause(listener: PageVideoEventListener): void;
+    /** 监听播放器播放进度事件 */
+    onTimeUpdate(listener: PageVideoTimeUpdateListener): void;
+    /** 取消监听播放器播放进度事件 */
+    offTimeUpdate(listener: PageVideoTimeUpdateListener): void;
+    /** 监听播放器播放完毕事件 */
+    onEnded(listener: PageVideoEventListener): void;
+    /** 取消监听播放器播放完毕事件 */
+    offEnded(listener: PageVideoEventListener): void;
+    /** 监听播放器错误事件 */
+    onError(listener: PageVideoErrorListener): void;
+    /** 取消监听播放器错误事件 */
+    offError(listener: PageVideoErrorListener): void;
+    /** 监听播放器视频信息改变事件 */
+    onVideoChanged(listener: PageVideoVideoChangedListener): void;
+    /** 取消监听播放器视频信息改变事件 */
+    offVideoChanged(listener: PageVideoVideoChangedListener): void;
+    /** 监听播放器切换全屏事件 */
+    onFullScreen(listener: PageVideoFullScreenListener): void;
+    /** 取消监听播放器切换全屏事件 */
+    offFullScreen(listener: PageVideoFullScreenListener): void;
+}
+
+/**
+ * 创建半屏视频上下文 PageVideoContext 对象
+ * @returns PageVideoContext对象
+ * @see https://open.mgtv.com/docs/minigame/api/media/page-video/createPageVideoContext
+ */
+declare function createPageVideoContext(): PageVideoContext;
+
+// ============================================================================
+// 设备相关API补充
+// ============================================================================
+
+/** 摇一摇事件中断监听器 */
+type ShakeInterruptedListener = () => void;
+
+/**
+ * 监听摇一摇事件
+ * @param callback 摇一摇事件监听器
+ * @see https://open.mgtv.com/docs/minigame/api/device/shake/onShake
+ */
+declare function onShake(callback: ShakeListener): void;
+
+/**
+ * 取消监听摇一摇事件
+ * @param callback 摇一摇事件监听器
+ * @see https://open.mgtv.com/docs/minigame/api/device/shake/offShake
+ */
+declare function offShake(callback: ShakeListener): void;
+
+/**
+ * 监听摇一摇事件中断
+ * @param callback 摇一摇事件中断监听器
+ * @see https://open.mgtv.com/docs/minigame/api/device/shake/onShakeInterrupted
+ */
+declare function onShakeInterrupted(callback: ShakeInterruptedListener): void;
+
+/**
+ * 取消监听摇一摇事件中断
+ * @param callback 摇一摇事件中断监听器
+ * @see https://open.mgtv.com/docs/minigame/api/device/shake/offShakeInterrupted
+ */
+declare function offShakeInterrupted(callback: ShakeInterruptedListener): void;
+
+/**
+ * 开始监听设备摇一摇
+ * @param options 选项
+ * @see https://open.mgtv.com/docs/minigame/api/device/shake/startWatchShake
+ */
+declare function startWatchShake(options?: BaseCallback): void;
+
+/**
+ * 停止监听设备摇一摇
+ * @param options 选项
+ * @see https://open.mgtv.com/docs/minigame/api/device/shake/stopWatchShake
+ */
+declare function stopWatchShake(options?: BaseCallback): void;
+
+// ============================================================================
+// 语音通话相关类型
+// ============================================================================
+
+/** 语音通话选项 */
+interface VoIPChatOptions extends BaseCallback {
+    /** 房间号 */
+    roomId: string;
+}
+
+/** 语音通话状态变化结果 */
+interface VoIPChatStateChangedResult {
+    /** 状态码 */
+    code: number;
+    /** 错误信息 */
+    errMsg: string;
+}
+
+/** 语音通话成员变化结果 */
+interface VoIPChatMembersChangedResult {
+    /** 成员列表 */
+    members: Array<{
+        /** 用户ID */
+        openid: string;
+        /** 是否静音 */
+        muted: boolean;
+    }>;
+}
+
+/** 语音通话中断结果 */
+interface VoIPChatInterruptedResult {
+    /** 中断原因 */
+    reason: string;
+}
+
+/** 更新语音通话静音配置选项 */
+interface UpdateVoIPChatMuteConfigOptions extends BaseCallback {
+    /** 是否静音麦克风 */
+    muteConfig: {
+        micMuted: boolean;
+    };
+}
+
+/** 语音通话事件监听器类型 */
+type VoIPChatStateChangedListener = (res: VoIPChatStateChangedResult) => void;
+type VoIPChatMembersChangedListener = (res: VoIPChatMembersChangedResult) => void;
+type VoIPChatInterruptedListener = (res: VoIPChatInterruptedResult) => void;
+
+/**
+ * 加入语音通话
+ * @param options 语音通话选项
+ * @see https://open.mgtv.com/docs/minigame/api/media/voice/joinVoIPChat
+ */
+declare function joinVoIPChat(options: VoIPChatOptions): void;
+
+/**
+ * 退出语音通话
+ * @param options 选项
+ * @see https://open.mgtv.com/docs/minigame/api/media/voice/exitVoIPChat
+ */
+declare function exitVoIPChat(options?: BaseCallback): void;
+
+/**
+ * 更新语音通话静音配置
+ * @param options 更新选项
+ * @see https://open.mgtv.com/docs/minigame/api/media/voice/updateVoIPChatMuteConfig
+ */
+declare function updateVoIPChatMuteConfig(options: UpdateVoIPChatMuteConfigOptions): void;
+
+/**
+ * 监听语音通话状态变化事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/media/voice/onVoIPChatStateChanged
+ */
+declare function onVoIPChatStateChanged(callback: VoIPChatStateChangedListener): void;
+
+/**
+ * 取消监听语音通话状态变化事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/media/voice/offVoIPChatStateChanged
+ */
+declare function offVoIPChatStateChanged(callback: VoIPChatStateChangedListener): void;
+
+/**
+ * 监听语音通话成员变化事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/media/voice/onVoIPChatMembersChanged
+ */
+declare function onVoIPChatMembersChanged(callback: VoIPChatMembersChangedListener): void;
+
+/**
+ * 取消监听语音通话成员变化事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/media/voice/offVoIPChatMembersChanged
+ */
+declare function offVoIPChatMembersChanged(callback: VoIPChatMembersChangedListener): void;
+
+/**
+ * 监听语音通话中断事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/media/voice/onVoIPChatInterrupted
+ */
+declare function onVoIPChatInterrupted(callback: VoIPChatInterruptedListener): void;
+
+/**
+ * 取消监听语音通话中断事件
+ * @param callback 回调函数
+ * @see https://open.mgtv.com/docs/minigame/api/media/voice/offVoIPChatInterrupted
+ */
+declare function offVoIPChatInterrupted(callback: VoIPChatInterruptedListener): void;
+
 declare namespace mgtv {
     /**
      * 同步获取设备信息
@@ -506,35 +1029,35 @@ declare namespace mgtv {
      * @param listener 错误事件监听器
      * @see https://open.mgtv.com/docs/minigame/api/app/events/offError
      */
-    function offError(listener: (error: any) => void): void;
+    function offError(listener: (error: ErrorInfo) => void): void;
 
     /**
      * 移除未处理的 Promise 拒绝事件监听器
      * @param listener 未处理的 Promise 拒绝事件监听器
-     * @see https://open.mgtv.com/docs/minigame/api/app/events/offUnhandleRejection
+     * @see https://open.mgtv.com/docs/minigame/api/app/events/offUnhandledRejection
      */
-    function offUnhandleRejection(listener: (res: any) => void): void;
+    function offUnhandledRejection(listener: (res: UnhandledRejectionResult) => void): void;
 
     /**
      * 监听全局错误事件
      * @param listener 错误事件监听器
      * @see https://open.mgtv.com/docs/minigame/api/app/events/onError
      */
-    function onError(listener: (error: any) => void): void;
+    function onError(listener: (error: ErrorInfo) => void): void;
 
     /**
      * 监听未处理的 Promise 拒绝事件
      * @param listener 未处理的 Promise 拒绝事件监听器
      * @see https://open.mgtv.com/docs/minigame/api/app/events/onUnhandledRejection
      */
-    function onUnhandledRejection(listener: (res: any) => void): void;
+    function onUnhandledRejection(listener: (res: UnhandledRejectionResult) => void): void;
 
     /**
      * 获取小游戏冷启动时的参数
      * @returns 启动参数
      * @see https://open.mgtv.com/docs/minigame/api/app/lifecycle/getLaunchOptionsSync
      */
-    function getLaunchOptionsSync(): any;
+    function getLaunchOptionsSync(): LaunchOptions;
 
     /**
      * 取消监听小游戏隐藏到后台事件
@@ -658,8 +1181,156 @@ declare namespace mgtv {
      */
     function uploadFile(options: UploadFileOptions): UploadTask;
 
+    // ============================================================================
+    // WebSocket API
+    // ============================================================================
+
+    /**
+     * 创建一个 WebSocket 连接
+     * @param options WebSocket连接选项
+     * @returns SocketTask对象
+     * @see https://open.mgtv.com/docs/minigame/api/network/websocket/connectSocket
+     */
+    function connectSocket(options: ConnectSocketOptions): SocketTask;
+
+    /**
+     * 关闭 WebSocket 连接
+     * @param options 关闭选项
+     * @see https://open.mgtv.com/docs/minigame/api/network/websocket/closeSocket
+     */
+    function closeSocket(options?: CloseSocketOptions): void;
+
+    /**
+     * 通过 WebSocket 连接发送数据
+     * @param options 发送消息选项
+     * @see https://open.mgtv.com/docs/minigame/api/network/websocket/sendSocketMessage
+     */
+    function sendSocketMessage(options: SendSocketMessageOptions): void;
+
+    /**
+     * 监听WebSocket连接打开事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/network/websocket/onSocketOpen
+     */
+    function onSocketOpen(callback: SocketOpenListener): void;
+
+    /**
+     * 监听WebSocket连接关闭事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/network/websocket/onSocketClose
+     */
+    function onSocketClose(callback: SocketCloseListener): void;
+
+    /**
+     * 监听WebSocket错误事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/network/websocket/onSocketError
+     */
+    function onSocketError(callback: SocketErrorListener): void;
+
+    /**
+     * 监听WebSocket接受到服务器的消息事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/network/websocket/onSocketMessage
+     */
+    function onSocketMessage(callback: SocketMessageListener): void;
+
+    // ============================================================================
+    // 文件系统API
+    // ============================================================================
+
+    /**
+     * 获取全局唯一的文件系统管理器
+     * @returns 文件系统管理器
+     * @see https://open.mgtv.com/docs/minigame/api/file/FileSystemManager/
+     */
+    function getFileSystemManager(): FileSystemManager;
+
+    // ============================================================================
+    // 页面视频API
+    // ============================================================================
+
+    /**
+     * 创建半屏视频上下文 PageVideoContext 对象
+     * @returns PageVideoContext对象
+     * @see https://open.mgtv.com/docs/minigame/api/media/page-video/createPageVideoContext
+     */
+    function createPageVideoContext(): PageVideoContext;
+
+    // ============================================================================
+    // 语音通话API
+    // ============================================================================
+
+    /**
+     * 加入语音通话
+     * @param options 语音通话选项
+     * @see https://open.mgtv.com/docs/minigame/api/media/voice/joinVoIPChat
+     */
+    function joinVoIPChat(options: VoIPChatOptions): void;
+
+    /**
+     * 退出语音通话
+     * @param options 选项
+     * @see https://open.mgtv.com/docs/minigame/api/media/voice/exitVoIPChat
+     */
+    function exitVoIPChat(options?: BaseCallback): void;
+
+    /**
+     * 更新语音通话静音配置
+     * @param options 更新选项
+     * @see https://open.mgtv.com/docs/minigame/api/media/voice/updateVoIPChatMuteConfig
+     */
+    function updateVoIPChatMuteConfig(options: UpdateVoIPChatMuteConfigOptions): void;
+
+    /**
+     * 监听语音通话状态变化事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/media/voice/onVoIPChatStateChanged
+     */
+    function onVoIPChatStateChanged(callback: VoIPChatStateChangedListener): void;
+
+    /**
+     * 取消监听语音通话状态变化事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/media/voice/offVoIPChatStateChanged
+     */
+    function offVoIPChatStateChanged(callback: VoIPChatStateChangedListener): void;
+
+    /**
+     * 监听语音通话成员变化事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/media/voice/onVoIPChatMembersChanged
+     */
+    function onVoIPChatMembersChanged(callback: VoIPChatMembersChangedListener): void;
+
+    /**
+     * 取消监听语音通话成员变化事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/media/voice/offVoIPChatMembersChanged
+     */
+    function offVoIPChatMembersChanged(callback: VoIPChatMembersChangedListener): void;
+
+    /**
+     * 监听语音通话中断事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/media/voice/onVoIPChatInterrupted
+     */
+    function onVoIPChatInterrupted(callback: VoIPChatInterruptedListener): void;
+
+    /**
+     * 取消监听语音通话中断事件
+     * @param callback 回调函数
+     * @see https://open.mgtv.com/docs/minigame/api/media/voice/offVoIPChatInterrupted
+     */
+    function offVoIPChatInterrupted(callback: VoIPChatInterruptedListener): void;
+
     // 存储API
     interface StorageOptions extends BaseCallback {
+        /** 本地缓存中指定的 key */
+        key: string;
+    }
+
+    interface GetStorageOptions extends BaseCallback<GetStorageSuccessResult> {
         /** 本地缓存中指定的 key */
         key: string;
     }
@@ -688,7 +1359,7 @@ declare namespace mgtv {
      * @param options 获取存储数据的选项
      * @see https://open.mgtv.com/docs/minigame/api/storage/getStorage
      */
-    function getStorage(options: StorageOptions): void;
+    function getStorage(options: GetStorageOptions): void;
 
     /**
      * 同步获取本地数据缓存
@@ -769,8 +1440,17 @@ declare namespace mgtv {
     interface BannerAdOptions {
         /** 广告单元id */
         adUnitId: string;
-        /** 广告样式 */
-        style?: AdStyle;
+        /** 广告自动刷新的间隔时间，单位为秒，参数值必须大于等于30 */
+        adIntervals?: number;
+        /** Banner广告样式 */
+        style: {
+            /** banner 广告组件的左上角横坐标 */
+            left: number;
+            /** banner 广告组件的左上角纵坐标 */
+            top: number;
+            /** banner 广告组件的宽度，宽度在 180-220 之间 */
+            width: number;
+        };
     }
 
     interface InterstitialAdOptions {
@@ -792,34 +1472,34 @@ declare namespace mgtv {
         /** 显示 banner 广告 */
         show(): Promise<void>;
         /** 隐藏 banner 广告 */
-        hide(): void;
+        hide(): Promise<void>;
         /** 销毁 banner 广告 */
-        destroy(): void;
+        destroy(): Promise<void>;
         /** 判断 banner 广告是否显示 */
-        isShow(): boolean;
+        isShow(): Promise<boolean>;
         /** 监听 banner 广告关闭事件 */
         onClose(callback: LifecycleListener): void;
         /** 取消监听 banner 广告关闭事件 */
-        offClose(callback: LifecycleListener): void;
+        offClose(callback?: LifecycleListener): void;
         /** 监听 banner 广告错误事件 */
         onError(callback: ErrorListener): void;
         /** 取消监听 banner 广告错误事件 */
-        offError(callback: ErrorListener): void;
+        offError(callback?: ErrorListener): void;
     }
 
     interface InterstitialAd {
         /** 显示插屏广告 */
         show(): Promise<void>;
         /** 销毁插屏广告 */
-        destroy(): void;
+        destroy(): Promise<void>;
         /** 监听插屏广告关闭事件 */
         onClose(callback: LifecycleListener): void;
         /** 取消监听插屏广告关闭事件 */
-        offClose(callback: LifecycleListener): void;
+        offClose(callback?: LifecycleListener): void;
         /** 监听插屏广告错误事件 */
         onError(callback: ErrorListener): void;
         /** 取消监听插屏广告错误事件 */
-        offError(callback: ErrorListener): void;
+        offError(callback?: ErrorListener): void;
     }
 
     interface RewardedVideoAd {
