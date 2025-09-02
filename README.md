@@ -14,7 +14,7 @@
 
 ## 项目说明
 
-本项目包含芒果TV和抖音小游戏平台的 TypeScript 类型定义文件，基于官方API文档制作。
+本项目包含芒果TV、抖音和支付宝小游戏平台的 TypeScript 类型定义文件，基于官方API文档制作。
 
 ## 支持的平台
 
@@ -22,6 +22,7 @@
 | ------------ | ----------- | ------------------- |
 | 芒果TV小游戏 | `mgtv.d.ts` | [芒果TV开放平台][1] |
 | 抖音小游戏   | `tt.d.ts`   | [抖音开放平台][2]   |
+| 支付宝小游戏 | `my.d.ts`   | [支付宝开放平台][3] |
 
 ## 使用方法
 
@@ -44,3 +45,4 @@ MIT
 <!-- 链接 -->
 [1]: https://open.mgtv.com/docs/minigame/api
 [2]: https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/overview
+[3]: https://opendocs.alipay.com/mini-game/
