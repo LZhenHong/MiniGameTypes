@@ -1723,6 +1723,38 @@ declare namespace my {
     }
     function createInterstitialAd(options: CreateInterstitialAdOptions): InterstitialAd;
 
+    /** ------------------ 消息订阅 ------------------ */
+
+    /** 订阅消息 */
+    interface RequestSubscribeMessageOptions {
+        entityIds: string[];
+        thirdTypeAppId?: string;
+        success?: (res: {
+            behavior: 'subscribe' | 'cancel' | string;
+            show: boolean;
+            keep: boolean;
+            refuse: boolean;
+            result: {
+                subscribedEntityIds: string[];
+                unsubscribedEntityIds: string[];
+                [key: string]: any;
+            };
+            [key: string]: any;
+        }) => void;
+        fail?: (err: { error: number; errorMessage: string }) => void;
+        complete?: () => void;
+    }
+    function requestSubscribeMessage(options: RequestSubscribeMessageOptions): void;
+
+    /** 取消订阅消息 */
+    interface UnsubscribeMessageOptions {
+        entityIds: string[];
+        success?: (res: any) => void;
+        fail?: (err: { error: number; errorMessage: string }) => void;
+        complete?: () => void;
+    }
+    function unsubscribeMessage(options: UnsubscribeMessageOptions): void;
+
     /** 更新管理 */
     interface UpdateManager {
         applyUpdate(): void;
